@@ -1,93 +1,79 @@
 # sentry_suggestion/train.py
 import json
-import numpy as np
-import tensorflow as tf
-from tensorflow.keras.preprocessing.text import Tokenizer
-from tensorflow.keras.preprocessing.sequence import pad_sequences
-from sklearn.model_selection import train_test_split
-from tensorflow.keras.layers import Input, LSTM, Embedding, Dense
-import pickle
-import os
+import torch
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, TrainingArguments, Trainer
+from sklearn.model_selection import train_test_split #Import this.
 
-def load_and_preprocess_data(filepath):
-    with open(filepath, 'r') as f:
+# Load CodeT5 model and tokenizer
+tokenizer = AutoTokenizer.from_pretrained("Salesforce/codet5-small")
+model = AutoModelForSeq2SeqLM.from_pretrained("Salesforce/codet5-small")
+
+# Load data
+def load_data(file_path):
+    with open(file_path, 'r') as f:
         data = json.load(f)
+    inputs = [item['code'] for item in data]
+    outputs = [item['sentry_code'] for item in data]
+    return inputs, outputs
 
-    code = [item['code'] for item in data]
-    description = [item['description'] for item in data]
-    sentry_code = [item['sentry_code'] for item in data]
+inputs, outputs = load_data('./data/data.json')
 
-    # Add start and end tokens
-    sentry_code_with_tokens = ["<s> " + code + " </s>" for code in sentry_code]
+# Split data into training and evaluation sets
+train_inputs, eval_inputs, train_outputs, eval_outputs = train_test_split(
+    inputs, outputs, test_size=0.2, random_state=42
+)
 
-    input_texts = [c + " " + d for c, d in zip(code, description)]
+# Tokenize data
+train_encodings = tokenizer(train_inputs, truncation=True, padding=True, return_tensors="pt")
+train_labels = tokenizer(train_outputs, truncation=True, padding=True, return_tensors="pt").input_ids
 
-    def tokenize(texts, num_words=None):
-        tokenizer = Tokenizer(num_words=num_words, filters='')
-        tokenizer.fit_on_texts(texts)
-        sequences = tokenizer.texts_to_sequences(texts)
-        return tokenizer, sequences
+eval_encodings = tokenizer(eval_inputs, truncation=True, padding=True, return_tensors="pt")
+eval_labels = tokenizer(eval_outputs, truncation=True, padding=True, return_tensors="pt").input_ids
 
-    input_tokenizer, input_sequences = tokenize(input_texts)
-    output_tokenizer, output_sequences = tokenize(sentry_code_with_tokens) # changed to use sentry_code_with_tokens
+# Create PyTorch Datasets
+class SentryDataset(torch.utils.data.Dataset):
+    def __init__(self, encodings, labels):
+        self.encodings = encodings
+        self.labels = labels
 
-    max_input_len = max(len(s) for s in input_sequences)
-    max_output_len = max(len(s) for s in output_sequences)
+    def __getitem__(self, idx):
+        item = {key: self.encodings[key][idx].clone().detach() for key in self.encodings}
+        item['labels'] = torch.tensor(self.labels[idx]).clone().detach()
+        return item
 
-    padded_input_sequences = pad_sequences(input_sequences, maxlen=max_input_len, padding='post')
-    padded_output_sequences = pad_sequences(output_sequences, maxlen=max_output_len, padding='post')
+    def __len__(self):
+        return len(self.labels)
 
-    input_vocab_size = len(input_tokenizer.word_index) + 1
-    output_vocab_size = len(output_tokenizer.word_index) + 1
+train_dataset = SentryDataset(train_encodings, train_labels)
+eval_dataset = SentryDataset(eval_encodings, eval_labels) #Create the eval dataset.
 
-    X_train, X_test, y_train, y_test = train_test_split(padded_input_sequences, padded_output_sequences, test_size=0.2, random_state=42)
+# Set up training arguments
+training_args = TrainingArguments(
+    output_dir='./results',
+    num_train_epochs=50,
+    per_device_train_batch_size=8,
+    warmup_steps=500,
+    weight_decay=0.01,
+    logging_dir='./logs',
+    logging_steps=10,
+    eval_strategy="epoch",
+    save_strategy="epoch",
+    learning_rate=5e-5,
+    gradient_accumulation_steps=4,
+    fp16=torch.cuda.is_available()
+)
 
-    return X_train, y_train, input_tokenizer, output_tokenizer, max_input_len, max_output_len, input_vocab_size, output_vocab_size
-
-def build_and_train_model(X_train, y_train, input_vocab_size, output_vocab_size, max_input_len, max_output_len, epochs=50):
-    embedding_dim = 256
-    latent_dim = 512
-
-    encoder_inputs = Input(shape=(max_input_len,))
-    encoder_embedding = Embedding(input_vocab_size, embedding_dim)(encoder_inputs)
-    encoder_lstm = LSTM(latent_dim, return_state=True)
-    encoder_outputs, state_h, state_c = encoder_lstm(encoder_embedding)
-    encoder_states = [state_h, state_c]
-
-    decoder_inputs = Input(shape=(max_output_len,))
-    decoder_embedding = Embedding(output_vocab_size, embedding_dim)(decoder_inputs)
-    decoder_lstm = LSTM(latent_dim, return_sequences=True, return_state=True)
-    decoder_outputs, _, _ = decoder_lstm(decoder_embedding, initial_state=encoder_states)
-    decoder_dense = Dense(output_vocab_size, activation='softmax')
-    decoder_outputs = decoder_dense(decoder_outputs)
-
-    model = tf.keras.Model([encoder_inputs, decoder_inputs], decoder_outputs)
-    model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
-
-    decoder_input_data = np.zeros_like(y_train)
-    decoder_input_data[:, 1:] = y_train[:, :-1]
-    decoder_input_data[:, 0] = output_tokenizer.word_index['<s>'] #start token
-    decoder_target_data = np.expand_dims(y_train, -1)
-
-    model.fit([X_train, decoder_input_data], decoder_target_data, batch_size=64, epochs=epochs, validation_split=0.2)
-
-    return model
-
-# Load and preprocess
-X_train, y_train, input_tokenizer, output_tokenizer, max_input_len, max_output_len, input_vocab_size, output_vocab_size = load_and_preprocess_data('data/data.json')
+# Create Trainer
+trainer = Trainer(
+    model=model,
+    args=training_args,
+    train_dataset=train_dataset,
+    eval_dataset=eval_dataset, #Add the eval dataset here.
+    processing_class=tokenizer
+)
 
 # Train the model
-model = build_and_train_model(X_train, y_train, input_vocab_size, output_vocab_size, max_input_len, max_output_len)
+trainer.train()
 
-# Save the model and tokenizers
-os.makedirs('models', exist_ok=True)
-model.save('models/sentry_suggestion_model.h5')
-os.makedirs('tokenizers', exist_ok=True)
-with open('tokenizers/input_tokenizer.pkl', 'wb') as f:
-    pickle.dump(input_tokenizer, f)
-with open('tokenizers/output_tokenizer.pkl', 'wb') as f:
-    pickle.dump(output_tokenizer, f)
-with open('tokenizers/model_metadata.pkl', 'wb') as f:
-    pickle.dump({'max_input_len': max_input_len, 'max_output_len': max_output_len}, f)
-
-print("Model training complete. Model and tokenizers saved.")
+# Save the model (optional, but good practice)
+trainer.save_model('./results')
