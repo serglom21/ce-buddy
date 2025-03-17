@@ -1,0 +1,650 @@
+[
+  {
+    "platform": "web",
+    "code": "async function handleLogin(username, password) { try { await authService.login(username, password); } catch (error) { console.error('Login failed:', error); } }",
+    "description": "User login process",
+    "sentry_code": "async function handleLogin(username, password) { return await Sentry.startSpan({ name: 'login', op: 'ui.action' }, async () => { try { await authService.login(username, password); } catch (error) { console.error('Login failed:', error); throw error; } }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function fetchUserProfile(userId) { const response = await fetch(`/api/users/${userId}`); return response.json(); }",
+    "description": "Fetching user profile data",
+    "sentry_code": "async function fetchUserProfile(userId) { return await Sentry.startSpan({ name: 'fetchUserProfile', op: 'http.request' }, async () => { const response = await fetch(`/api/users/${userId}`); return response.json(); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function renderDashboard(data) { const startTime = performance.now(); // Complex rendering logic const endTime = performance.now(); console.log(`Dashboard rendered in ${endTime - startTime}ms`); }",
+    "description": "Dashboard rendering performance",
+    "sentry_code": "function renderDashboard(data) { return Sentry.startSpan({ name: 'renderDashboard', op: 'ui.render' }, () => { // Complex rendering logic }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function uploadFile(file) { const formData = new FormData(); formData.append('file', file); await fetch('/api/upload', { method: 'POST', body: formData }); }",
+    "description": "File upload operation",
+    "sentry_code": "async function uploadFile(file) { return await Sentry.startSpan({ name: 'fileUpload', op: 'resource.upload', attributes: { fileSize: file.size, fileType: file.type } }, async () => { const formData = new FormData(); formData.append('file', file); await fetch('/api/upload', { method: 'POST', body: formData }); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function processFormData(formData) { // Process form data logic }",
+    "description": "Form data processing",
+    "sentry_code": "function processFormData(formData) { return Sentry.startSpan({ name: 'processFormData', op: 'data.process' }, () => { // Process form data logic }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function initializeApp() { await loadConfig(); await setupServices(); }",
+    "description": "Application initialization",
+    "sentry_code": "async function initializeApp() { return await Sentry.startSpan({ name: 'appInitialization', op: 'app.init' }, async () => { await Sentry.startSpan({ name: 'loadConfig', op: 'app.config' }, async () => await loadConfig()); await Sentry.startSpan({ name: 'setupServices', op: 'app.services' }, async () => await setupServices()); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function calculateTotals(items) { return items.reduce((total, item) => total + item.price, 0); }",
+    "description": "Cart total calculation",
+    "sentry_code": "function calculateTotals(items) { return Sentry.startSpan({ name: 'calculateTotals', op: 'business.calculation', attributes: { itemCount: items.length } }, () => { return items.reduce((total, item) => total + item.price, 0); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function searchProducts(query) { const results = await fetch(`/api/search?q=${query}`).then(r => r.json()); return results; }",
+    "description": "Product search operation",
+    "sentry_code": "async function searchProducts(query) { return await Sentry.startSpan({ name: 'productSearch', op: 'data.search', attributes: { query } }, async () => { const results = await fetch(`/api/search?q=${query}`).then(r => r.json()); return results; }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function sortProductList(products, sortBy) { return [...products].sort((a, b) => a[sortBy] - b[sortBy]); }",
+    "description": "Product list sorting",
+    "sentry_code": "function sortProductList(products, sortBy) { return Sentry.startSpan({ name: 'sortProducts', op: 'data.sort', attributes: { sortBy, count: products.length } }, () => { return [...products].sort((a, b) => a[sortBy] - b[sortBy]); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function checkoutProcess(cart) { await validateCart(cart); await processPayment(cart.total); await createOrder(cart); }",
+    "description": "Checkout process flow",
+    "sentry_code": "async function checkoutProcess(cart) { return await Sentry.startSpan({ name: 'checkout', op: 'business.checkout', attributes: { cartTotal: cart.total, itemCount: cart.items.length } }, async () => { await Sentry.startSpan({ name: 'validateCart', op: 'business.validation' }, async () => await validateCart(cart)); await Sentry.startSpan({ name: 'processPayment', op: 'business.payment' }, async () => await processPayment(cart.total)); await Sentry.startSpan({ name: 'createOrder', op: 'business.order' }, async () => await createOrder(cart)); }); }"
+  },
+  {
+    "platform": "react-native",
+    "code": "async function fetchFeed() { const response = await api.get('/feed'); return response.data; }",
+    "description": "Fetching social feed",
+    "sentry_code": "async function fetchFeed() { return await Sentry.startSpan({ name: 'fetchFeed', op: 'http.request' }, async () => { const response = await api.get('/feed'); return response.data; }); }"
+  },
+  {
+    "platform": "react-native",
+    "code": "function renderComplexList(items) { return items.map(item => <ListItem key={item.id} {...item} />); }",
+    "description": "Rendering complex list in React Native",
+    "sentry_code": "function renderComplexList(items) { return Sentry.startSpan({ name: 'renderComplexList', op: 'ui.render', attributes: { itemCount: items.length } }, () => { return items.map(item => <ListItem key={item.id} {...item} />); }); }"
+  },
+  {
+    "platform": "react-native",
+    "code": "async function syncLocalDatabase() { const remoteData = await fetchRemoteData(); await storeLocally(remoteData); }",
+    "description": "Local database synchronization",
+    "sentry_code": "async function syncLocalDatabase() { return await Sentry.startSpan({ name: 'syncDatabase', op: 'data.sync' }, async () => { const remoteData = await Sentry.startSpan({ name: 'fetchRemoteData', op: 'http.request' }, async () => await fetchRemoteData()); await Sentry.startSpan({ name: 'storeLocally', op: 'db.write' }, async () => await storeLocally(remoteData)); }); }"
+  },
+  {
+    "platform": "react-native",
+    "code": "async function processImageUpload(image) { const compressed = await compressImage(image); const url = await uploadToServer(compressed); return url; }",
+    "description": "Image processing and upload",
+    "sentry_code": "async function processImageUpload(image) { return await Sentry.startSpan({ name: 'processImageUpload', op: 'resource.upload', attributes: { imageSize: image.size } }, async () => { const compressed = await Sentry.startSpan({ name: 'compressImage', op: 'media.process' }, async () => await compressImage(image)); const url = await Sentry.startSpan({ name: 'uploadToServer', op: 'http.request' }, async () => await uploadToServer(compressed)); return url; }); }"
+  },
+  {
+    "platform": "react-native",
+    "code": "function calculateRoute(start, end) { // Complex route calculation logic }",
+    "description": "Navigation route calculation",
+    "sentry_code": "function calculateRoute(start, end) { return Sentry.startSpan({ name: 'calculateRoute', op: 'geo.route', attributes: { startPoint: `<span></span>{start.lng}`, endPoint: `<span></span>{end.lng}` } }, () => { // Complex route calculation logic }); }"
+  },
+  {
+    "platform": "backend",
+    "code": "def process_payment(payment_id): payment = get_payment(payment_id); result = payment_gateway.process(payment); update_payment_status(payment_id, result.status); return result",
+    "description": "Payment processing in backend",
+    "sentry_code": "def process_payment(payment_id): with sentry_sdk.start_span(op=\"payment.process\", description=\"Process payment\"): payment = get_payment(payment_id); sentry_sdk.set_tag(\"payment_id\", payment_id); sentry_sdk.set_tag(\"amount\", payment.amount); result = payment_gateway.process(payment); update_payment_status(payment_id, result.status); return result"
+  },
+  {
+    "platform": "backend",
+    "code": "def generate_report(user_id, report_type): data = collect_report_data(user_id, report_type); report = format_report(data); store_report(user_id, report); return report",
+    "description": "Report generation process",
+    "sentry_code": "def generate_report(user_id, report_type): with sentry_sdk.start_span(op=\"report.generate\", description=\"Generate user report\"): sentry_sdk.set_tag(\"user_id\", user_id); sentry_sdk.set_tag(\"report_type\", report_type); with sentry_sdk.start_span(op=\"data.collect\", description=\"Collect report data\"): data = collect_report_data(user_id, report_type); with sentry_sdk.start_span(op=\"report.format\", description=\"Format report\"): report = format_report(data); with sentry_sdk.start_span(op=\"storage.write\", description=\"Store report\"): store_report(user_id, report); return report"
+  },
+  {
+    "platform": "web",
+    "code": "async function handleRegistration(userData) { try { await authService.registerUser(userData); } catch (error) { console.error('Registration failed:', error); } }",
+    "description": "User registration process",
+    "sentry_code": "async function handleRegistration(userData) { return await Sentry.startSpan({ name: 'registration', op: 'ui.action' }, async () => { try { await authService.registerUser(userData); } catch (error) { console.error('Registration failed:', error); throw error; } }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function resetPassword(email, token, newPassword) { await authService.resetPassword(email, token, newPassword); }",
+    "description": "Password reset operation",
+    "sentry_code": "async function resetPassword(email, token, newPassword) { return await Sentry.startSpan({ name: 'resetPassword', op: 'ui.action' }, async () => { await authService.resetPassword(email, token, newPassword); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function validateInput(input) { // Validation logic }",
+    "description": "Input validation",
+    "sentry_code": "function validateInput(input) { return Sentry.startSpan({ name: 'validateInput', op: 'data.validation' }, () => { // Validation logic }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function loadDataFromCache(key) { return await cacheService.get(key); }",
+    "description": "Loading data from cache",
+    "sentry_code": "async function loadDataFromCache(key) { return await Sentry.startSpan({ name: 'loadCacheData', op: 'db.read' }, async () => { return await cacheService.get(key); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function saveDataToCache(key, data) { await cacheService.set(key, data); }",
+    "description": "Saving data to cache",
+    "sentry_code": "async function saveDataToCache(key, data) { return await Sentry.startSpan({ name: 'saveCacheData', op: 'db.write' }, async () => { await cacheService.set(key, data); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function formatCurrency(amount, currencyCode) { // Currency formatting }",
+    "description": "Currency formatting",
+    "sentry_code": "function formatCurrency(amount, currencyCode) { return Sentry.startSpan({ name: 'formatCurrency', op: 'data.format' }, () => { // Currency formatting }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function fetchNotifications() { const notifications = await api.get('/notifications'); return notifications; }",
+    "description": "Fetching user notifications",
+    "sentry_code": "async function fetchNotifications() { return await Sentry.startSpan({ name: 'fetchNotifications', op: 'http.request' }, async () => { const notifications = await api.get('/notifications'); return notifications; }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function displayAlert(message, type) { // Display alert logic }",
+    "description": "Displaying user alerts",
+    "sentry_code": "function displayAlert(message, type) { return Sentry.startSpan({ name: 'displayAlert', op: 'ui.display' }, () => { // Display alert logic }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function trackUserInteraction(event) { await analyticsService.track(event); }",
+    "description": "Tracking user interactions",
+    "sentry_code": "async function trackUserInteraction(event) { return await Sentry.startSpan({ name: 'trackInteraction', op: 'analytics.track' }, async () => { await analyticsService.track(event); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function applyTheme(theme) { // Theme application logic }",
+    "description": "Applying application theme",
+    "sentry_code": "function applyTheme(theme) { return Sentry.startSpan({ name: 'applyTheme', op: 'ui.theme' }, () => { // Theme application logic }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function exportData(format) { const data = await gatherData(); const exportedData = await formatData(data, format); }",
+    "description": "Data export operation",
+    "sentry_code": "async function exportData(format) { return await Sentry.startSpan({ name: 'exportData', op: 'data.export' }, async () => { const data = await Sentry.startSpan({ name: 'gatherData', op: 'data.collect' }, async () => await gatherData()); const exportedData = await Sentry.startSpan({ name: 'formatData', op: 'data.format' }, async () => await formatData(data, format)); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function handleRouteChange(route) { // Route change logic }",
+    "description": "Handling route changes",
+    "sentry_code": "function handleRouteChange(route) { return Sentry.startSpan({ name: 'routeChange', op: 'navigation.route' }, () => { // Route change logic }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function loadTranslations(locale) { await i18nService.load(locale); }",
+    "description": "Loading translations",
+    "sentry_code": "async function loadTranslations(locale) { return await Sentry.startSpan({ name: 'loadTranslations', op: 'i18n.load' }, async () => { await i18nService.load(locale); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function formatDate(date, format) { // Date formatting logic }",
+    "description": "Date formatting",
+    "sentry_code": "function formatDate(date, format) { return Sentry.startSpan({ name: 'formatDate', op: 'data.format' }, () => { // Date formatting logic }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function printDocument(document) { await printService.print(document); }",
+    "description": "Printing a document",
+    "sentry_code": "async function printDocument(document) { return await Sentry.startSpan({ name: 'printDocument', op: 'device.print' }, async () => { await printService.print(document); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function generateQRCode(data) { // QR code generation logic }",
+    "description": "Generating a QR code",
+    "sentry_code": "function generateQRCode(data) { return Sentry.startSpan({ name: 'generateQRCode', op: 'data.generate' }, () => { // QR code generation logic }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function playVideo(url) { await videoPlayer.play(url); }",
+    "description": "Playing a video",
+    "sentry_code": "async function playVideo(url) { return await Sentry.startSpan({ name: 'playVideo', op: 'media.play' }, async () => { await videoPlayer.play(url); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function pauseVideo() { videoPlayer.pause(); }",
+    "description": "Pausing a video",
+    "sentry_code": "function pauseVideo() { return Sentry.startSpan({ name: 'pauseVideo', op: 'media.pause' }, () => { videoPlayer.pause(); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function stopVideo() { await videoPlayer.stop(); }",
+    "description": "Stopping a video",
+    "sentry_code": "async function stopVideo() { return await Sentry.startSpan({ name: 'stopVideo', op: 'media.stop' }, async () => { await videoPlayer.stop(); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function muteVideo() { videoPlayer.mute(); }",
+    "description": "Muting a video",
+    "sentry_code": "function muteVideo() { return Sentry.startSpan({ name: 'muteVideo', op: 'media.mute' }, () => { videoPlayer.mute(); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function unmuteVideo() { videoPlayer.unmute(); }",
+    "description": "Unmuting a video",
+    "sentry_code": "function unmuteVideo() { return Sentry.startSpan({ name: 'unmuteVideo', op: 'media.unmute' }, () => { videoPlayer.unmute(); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function showModal(content) { await modalService.show(content); }",
+    "description": "Displaying a modal",
+    "sentry_code": "async function showModal(content) { return await Sentry.startSpan({ name: 'showModal', op: 'ui.modal' }, async () => { await modalService.show(content); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function closeModal() { modalService.close(); }",
+    "description": "Closing a modal",
+    "sentry_code": "function closeModal() { return Sentry.startSpan({ name: 'closeModal', op: 'ui.modal' }, () => { modalService.close(); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function copyToClipboard(text) { await clipboardService.copy(text); }",
+    "description": "Copying text to clipboard",
+    "sentry_code": "async function copyToClipboard(text) { return await Sentry.startSpan({ name: 'copyToClipboard', op: 'device.clipboard' }, async () => { await clipboardService.copy(text); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function generateUUID() { return uuidService.generate(); }",
+    "description": "Generating a UUID",
+    "sentry_code": "function generateUUID() { return Sentry.startSpan({ name: 'generateUUID', op: 'data.generate' }, () => { return uuidService.generate(); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function sendEmail(email) { await emailService.send(email); }",
+    "description": "Sending an email",
+    "sentry_code": "async function sendEmail(email) { return await Sentry.startSpan({ name: 'sendEmail', op: 'communication.email' }, async () => { await emailService.send(email); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function formatPhoneNumber(number) { // Phone number formatting }",
+    "description": "Formatting a phone number",
+    "sentry_code": "function formatPhoneNumber(number) { return Sentry.startSpan({ name: 'formatPhoneNumber', op: 'data.format' }, () => { // Phone number formatting }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function getGeolocation() { return await geolocationService.get(); }",
+    "description": "Getting user geolocation",
+    "sentry_code": "async function getGeolocation() { return await Sentry.startSpan({ name: 'getGeolocation', op: 'device.geolocation' }, async () => { return await geolocationService.get(); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function calculateDistance(lat1, lon1, lat2, lon2) { // Distance calculation }",
+    "description": "Calculating distance between two points",
+    "sentry_code": "function calculateDistance(lat1, lon1, lat2, lon2) { return Sentry.startSpan({ name: 'calculateDistance', op: 'geo.distance' }, () => { // Distance calculation }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function scanBarcode() { return await barcodeScanner.scan(); }",
+    "description": "Scanning a barcode",
+    "sentry_code": "async function scanBarcode() { return await Sentry.startSpan({ name: 'scanBarcode', op: 'device.camera' }, async () => { return await barcodeScanner.scan(); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function generatePDF(data) { // PDF generation logic }",
+    "description": "Generating a PDF document",
+    "sentry_code": "function generatePDF(data) { return Sentry.startSpan({ name: 'generatePDF', op: 'data.generate' }, () => { // PDF generation logic }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function sendSMS(number, message) { await smsService.send(number, message); }",
+    "description": "Sending an SMS message",
+    "sentry_code": "async function sendSMS(number, message) { return await Sentry.startSpan({ name: 'sendSMS', op: 'communication.sms' }, async () => { await smsService.send(number, message); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function formatFileSize(bytes) { // File size formatting }",
+    "description": "Formatting file size",
+    "sentry_code": "function formatFileSize(bytes) { return Sentry.startSpan({ name: 'formatFileSize', op: 'data.format' }, () => { // File size formatting }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function getBatteryStatus() { return await batteryService.get(); }",
+    "description": "Getting battery status",
+    "sentry_code": "async function getBatteryStatus() { return await Sentry.startSpan({ name: 'getBatteryStatus', op: 'device.battery' }, async () => { return await batteryService.get(); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function calculateAge(birthdate) { // Age calculation logic }",
+    "description": "Calculating age from birthdate",
+    "sentry_code": "function calculateAge(birthdate) { return Sentry.startSpan({ name: 'calculateAge', op: 'data.calculation' }, () => { // Age calculation logic }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function shareContent(content) { await shareService.share(content); }",
+    "description": "Sharing content",
+    "sentry_code": "async function shareContent(content) { return await Sentry.startSpan({ name: 'shareContent', op: 'device.share' }, async () => { await shareService.share(content); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function generateRandomNumber(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }",
+    "description": "Generating a random number",
+    "sentry_code": "function generateRandomNumber(min, max) { return Sentry.startSpan({ name: 'generateRandomNumber', op: 'data.generate' }, () => { return Math.floor(Math.random() * (max - min + 1)) + min; }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function encryptData(data) { return await encryptionService.encrypt(data); }",
+    "description": "Encrypting data",
+    "sentry_code": "async function encryptData(data) { return await Sentry.startSpan({ name: 'encryptData', op: 'data.encrypt' }, async () => { return await encryptionService.encrypt(data); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function decryptData(data) { return await encryptionService.decrypt(data); }",
+    "description": "Decrypting data",
+    "sentry_code": "async function decryptData(data) { return await Sentry.startSpan({ name: 'decryptData', op: 'data.decrypt' }, async () => { return await encryptionService.decrypt(data); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function formatTime(time) { // Time formatting logic }",
+    "description": "Formatting time",
+    "sentry_code": "function formatTime(time) { return Sentry.startSpan({ name: 'formatTime', op: 'data.format' }, () => { // Time formatting logic }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function getDeviceOrientation() { return await deviceOrientationService.get(); }",
+    "description": "Getting device orientation",
+    "sentry_code": "async function getDeviceOrientation() { return await Sentry.startSpan({ name: 'getDeviceOrientation', op: 'device.orientation' }, async () => { return await deviceOrientationService.get(); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function calculateDiscount(price, discount) { return price - (price * discount); }",
+    "description": "Calculating discount",
+    "sentry_code": "function calculateDiscount(price, discount) { return Sentry.startSpan({ name: 'calculateDiscount', op: 'business.calculation' }, () => { return price - (price * discount); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function verifyPayment(paymentDetails) { return await paymentVerificationService.verify(paymentDetails); }",
+    "description": "Verifying payment",
+    "sentry_code": "async function verifyPayment(paymentDetails) { return await Sentry.startSpan({ name: 'verifyPayment', op: 'business.payment' }, async () => { return await paymentVerificationService.verify(paymentDetails); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function generateInvoice(order) { // Invoice generation logic }",
+    "description": "Generating an invoice",
+    "sentry_code": "function generateInvoice(order) { return Sentry.startSpan({ name: 'generateInvoice', op: 'business.document' }, () => { // Invoice generation logic }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function scheduleNotification(time, message) { await notificationScheduler.schedule(time, message); }",
+    "description": "Scheduling a notification",
+    "sentry_code": "async function scheduleNotification(time, message) { return await Sentry.startSpan({ name: 'scheduleNotification', op: 'communication.notification' }, async () => { await notificationScheduler.schedule(time, message); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function validateEmail(email) { // Email validation logic }",
+    "description": "Validating an email address",
+    "sentry_code": "function validateEmail(email) { return Sentry.startSpan({ name: 'validateEmail', op: 'data.validation' }, () => { // Email validation logic }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function getDeviceType() { return await deviceTypeService.get(); }",
+    "description": "Getting device type",
+    "sentry_code": "async function getDeviceType() { return await Sentry.startSpan({ name: 'getDeviceType', op: 'device.info' }, async () => { return await deviceTypeService.get(); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function calculateTax(amount, taxRate) { return amount * taxRate; }",
+    "description": "Calculating tax",
+    "sentry_code": "function calculateTax(amount, taxRate) { return Sentry.startSpan({ name: 'calculateTax', op: 'business.calculation' }, () => { return amount * taxRate; }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function processOrder(order) { await orderProcessingService.process(order); }",
+    "description": "Processing an order",
+    "sentry_code": "async function processOrder(order) { return await Sentry.startSpan({ name: 'processOrder', op: 'business.order' }, async () => { await orderProcessingService.process(order); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function generateConfirmationCode() { // Confirmation code generation logic }",
+    "description": "Generating a confirmation code",
+    "sentry_code": "function generateConfirmationCode() { return Sentry.startSpan({ name: 'generateConfirmationCode', op: 'data.generate' }, () => { // Confirmation code generation logic }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function sendPushNotification(token, message) { await pushNotificationService.send(token, message); }",
+    "description": "Sending a push notification",
+    "sentry_code": "async function sendPushNotification(token, message) { return await Sentry.startSpan({ name: 'sendPushNotification', op: 'communication.notification' }, async () => { await pushNotificationService.send(token, message); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function validateCreditCard(cardNumber) { // Credit card validation logic }",
+    "description": "Validating a credit card number",
+    "sentry_code": "function validateCreditCard(cardNumber) { return Sentry.startSpan({ name: 'validateCreditCard', op: 'data.validation' }, () => { // Credit card validation logic }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function getDeviceLanguage() { return await deviceLanguageService.get(); }",
+    "description": "Getting device language",
+    "sentry_code": "async function getDeviceLanguage() { return await Sentry.startSpan({ name: 'getDeviceLanguage', op: 'device.info' }, async () => { return await deviceLanguageService.get(); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function calculateShippingCost(order) { // Shipping cost calculation logic }",
+    "description": "Calculating shipping cost",
+    "sentry_code": "function calculateShippingCost(order) { return Sentry.startSpan({ name: 'calculateShippingCost', op: 'business.calculation' }, () => { // Shipping cost calculation logic }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function refundPayment(paymentId, amount) { await paymentRefundService.refund(paymentId, amount); }",
+    "description": "Refunding a payment",
+    "sentry_code": "async function refundPayment(paymentId, amount) { return await Sentry.startSpan({ name: 'refundPayment', op: 'business.payment' }, async () => { await paymentRefundService.refund(paymentId, amount); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function applyCoupon(couponCode, cart) { return await discountService.apply(couponCode, cart); }",
+    "description": "Applying a coupon code to a cart",
+    "sentry_code": "async function applyCoupon(couponCode, cart) { return await Sentry.startSpan({ name: 'applyCoupon', op: 'business.discount' }, async () => { return await discountService.apply(couponCode, cart); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function validateAddress(address) { // Address validation logic }",
+    "description": "Validating a shipping address",
+    "sentry_code": "function validateAddress(address) { return Sentry.startSpan({ name: 'validateAddress', op: 'data.validation' }, () => { // Address validation logic }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function getNetworkStatus() { return await networkService.getStatus(); }",
+    "description": "Getting network connection status",
+    "sentry_code": "async function getNetworkStatus() { return await Sentry.startSpan({ name: 'getNetworkStatus', op: 'device.network' }, async () => { return await networkService.getStatus(); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function calculateInventory(items) { return items.reduce((total, item) => total + item.quantity, 0); }",
+    "description": "Calculating total inventory",
+    "sentry_code": "function calculateInventory(items) { return Sentry.startSpan({ name: 'calculateInventory', op: 'business.calculation' }, () => { return items.reduce((total, item) => total + item.quantity, 0); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function updateUserSettings(settings) { await userService.update(settings); }",
+    "description": "Updating user settings",
+    "sentry_code": "async function updateUserSettings(settings) { return await Sentry.startSpan({ name: 'updateUserSettings', op: 'user.settings' }, async () => { await userService.update(settings); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function generateApiKey() { return apiKeyService.generate(); }",
+    "description": "Generating an API key",
+    "sentry_code": "function generateApiKey() { return Sentry.startSpan({ name: 'generateApiKey', op: 'data.generate' }, () => { return apiKeyService.generate(); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function subscribeToNewsletter(email) { await newsletterService.subscribe(email); }",
+    "description": "Subscribing to a newsletter",
+    "sentry_code": "async function subscribeToNewsletter(email) { return await Sentry.startSpan({ name: 'subscribeNewsletter', op: 'communication.subscribe' }, async () => { await newsletterService.subscribe(email); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function validatePhoneNumber(number) { // Phone number validation logic }",
+    "description": "Validating a phone number",
+    "sentry_code": "function validatePhoneNumber(number) { return Sentry.startSpan({ name: 'validatePhoneNumber', op: 'data.validation' }, () => { // Phone number validation logic }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function getBrowserInfo() { return await browserInfoService.get(); }",
+    "description": "Getting browser information",
+    "sentry_code": "async function getBrowserInfo() { return await Sentry.startSpan({ name: 'getBrowserInfo', op: 'device.browser' }, async () => { return await browserInfoService.get(); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function calculateAverageRating(ratings) { return ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length; }",
+    "description": "Calculating average rating",
+    "sentry_code": "function calculateAverageRating(ratings) { return Sentry.startSpan({ name: 'calculateAverageRating', op: 'business.calculation' }, () => { return ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length; }); }"
+  },
+  {
+    "platform": "react-native",
+    "code": "async function shareLocation(location) { await share.share({ message: `My location: ${location.lat}, ${location.lng}` }); }",
+    "description": "Sharing user location",
+    "sentry_code": "async function shareLocation(location) { return await Sentry.startSpan({ name: 'shareLocation', op: 'device.share' }, async () => { await share.share({ message: `My location: ${location.lat}, ${location.lng}` }); }); }"
+  },
+  {
+    "platform": "react-native",
+    "code": "function playSound(soundFile) { soundPlayer.play(soundFile); }",
+    "description": "Playing a sound effect",
+    "sentry_code": "function playSound(soundFile) { return Sentry.startSpan({ name: 'playSound', op: 'media.play' }, () => { soundPlayer.play(soundFile); }); }"
+  },
+  {
+    "platform": "react-native",
+    "code": "async function vibrateDevice(duration) { await vibration.vibrate(duration); }",
+    "description": "Vibrating the device",
+    "sentry_code": "async function vibrateDevice(duration) { return await Sentry.startSpan({ name: 'vibrateDevice', op: 'device.vibrate' }, async () => { await vibration.vibrate(duration); }); }"
+  },
+  {
+    "platform": "react-native",
+    "code": "function openLinkInBrowser(url) { Linking.openURL(url); }",
+    "description": "Opening a link in the device's browser",
+    "sentry_code": "function openLinkInBrowser(url) { return Sentry.startSpan({ name: 'openLink', op: 'device.open' }, () => { Linking.openURL(url); }); }"
+  },
+  {
+    "platform": "react-native",
+    "code": "async function checkCameraPermissions() { const permission = await Permissions.check(Permissions.CAMERA); return permission; }",
+    "description": "Checking camera permissions",
+    "sentry_code": "async function checkCameraPermissions() { return await Sentry.startSpan({ name: 'checkCameraPermissions', op: 'device.permissions' }, async () => { const permission = await Permissions.check(Permissions.CAMERA); return permission; }); }"
+  },
+  {
+    "platform": "backend",
+    "code": "def schedule_job(job_id, schedule_time): job = get_job(job_id); scheduler.schedule(job, schedule_time); return job",
+    "description": "Scheduling a background job",
+    "sentry_code": "def schedule_job(job_id, schedule_time): with sentry_sdk.start_span(op=\"job.schedule\", description=\"Schedule job\"): sentry_sdk.set_tag(\"job_id\", job_id); scheduler.schedule(get_job(job_id), schedule_time); return get_job(job_id)"
+  },
+  {
+    "platform": "backend",
+    "code": "def process_queue(queue_name): messages = queue.get_messages(queue_name); for message in messages: process_message(message); queue.delete_message(queue_name, message);",
+    "description": "Processing messages from a queue",
+    "sentry_code": "def process_queue(queue_name): with sentry_sdk.start_span(op=\"queue.process\", description=\"Process queue messages\"): sentry_sdk.set_tag(\"queue_name\", queue_name); messages = queue.get_messages(queue_name); for message in messages: with sentry_sdk.start_span(op=\"message.process\", description=\"Process message\"): process_message(message); queue.delete_message(queue_name, message);"
+  },
+  {
+    "platform": "web",
+    "code": "async function validateToken(token) { return await authService.validate(token); }",
+    "description": "Validating an authentication token",
+    "sentry_code": "async function validateToken(token) { return await Sentry.startSpan({ name: 'validateToken', op: 'auth.validate' }, async () => { return await authService.validate(token); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function generateRandomString(length) { // Random string generation logic }",
+    "description": "Generating a random string",
+    "sentry_code": "function generateRandomString(length) { return Sentry.startSpan({ name: 'generateRandomString', op: 'data.generate' }, () => { // Random string generation logic }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function downloadFile(url, fileName) { await downloadService.download(url, fileName); }",
+    "description": "Downloading a file",
+    "sentry_code": "async function downloadFile(url, fileName) { return await Sentry.startSpan({ name: 'downloadFile', op: 'resource.download' }, async () => { await downloadService.download(url, fileName); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function compareDates(date1, date2) { // Date comparison logic }",
+    "description": "Comparing two dates",
+    "sentry_code": "function compareDates(date1, date2) { return Sentry.startSpan({ name: 'compareDates', op: 'data.compare' }, () => { // Date comparison logic }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function getLocalStorageItem(key) { return localStorageService.get(key); }",
+    "description": "Getting an item from local storage",
+    "sentry_code": "async function getLocalStorageItem(key) { return await Sentry.startSpan({ name: 'getLocalStorageItem', op: 'storage.read' }, async () => { return localStorageService.get(key); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function setLocalStorageItem(key, value) { localStorageService.set(key, value); }",
+    "description": "Setting an item in local storage",
+    "sentry_code": "function setLocalStorageItem(key, value) { return Sentry.startSpan({ name: 'setLocalStorageItem', op: 'storage.write' }, () => { localStorageService.set(key, value); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function clearLocalStorage() { localStorageService.clear(); }",
+    "description": "Clearing local storage",
+    "sentry_code": "async function clearLocalStorage() { return await Sentry.startSpan({ name: 'clearLocalStorage', op: 'storage.clear' }, async () => { localStorageService.clear(); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function debounce(func, delay) { // Debouncing function logic }",
+    "description": "Debouncing a function call",
+    "sentry_code": "function debounce(func, delay) { return Sentry.startSpan({ name: 'debounceFunction', op: 'util.debounce' }, () => { // Debouncing function logic }); }"
+  },
+  {
+    "platform": "web",
+    "code": "async function throttle(func, limit) { // Throttling function logic }",
+    "description": "Throttling a function call",
+    "sentry_code": "async function throttle(func, limit) { return await Sentry.startSpan({ name: 'throttleFunction', op: 'util.throttle' }, async () => { // Throttling function logic }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function generateSlug(text) { // Slug generation logic }",
+    "description": "Generating a URL slug",
+    "sentry_code": "function generateSlug(text) { return Sentry.startSpan({ name: 'generateSlug', op: 'data.generate' }, () => { // Slug generation logic }); }"
+  },
+  {
+    "platform": "react-native",
+    "code": "async function saveToKeychain(key, value) { await Keychain.setGenericPassword(key, value); }",
+    "description": "Saving sensitive data to keychain",
+    "sentry_code": "async function saveToKeychain(key, value) { return await Sentry.startSpan({ name: 'saveKeychain', op: 'device.security' }, async () => { await Keychain.setGenericPassword(key, value); }); }"
+  },
+  {
+    "platform": "react-native",
+    "code": "async function getFromKeychain(key) { return await Keychain.getGenericPassword(key); }",
+    "description": "Retrieving sensitive data from keychain",
+    "sentry_code": "async function getFromKeychain(key) { return await Sentry.startSpan({ name: 'getKeychain', op: 'device.security' }, async () => { return await Keychain.getGenericPassword(key); }); }"
+  },
+  {
+    "platform": "react-native",
+    "code": "async function deleteFromKeychain(key) { await Keychain.resetGenericPassword(key); }",
+    "description": "Deleting sensitive data from keychain",
+    "sentry_code": "async function deleteFromKeychain(key) { return await Sentry.startSpan({ name: 'deleteKeychain', op: 'device.security' }, async () => { await Keychain.resetGenericPassword(key); }); }"
+  },
+  {
+    "platform": "react-native",
+    "code": "function openSettings() { Linking.openSettings(); }",
+    "description": "Opening device settings",
+    "sentry_code": "function openSettings() { return Sentry.startSpan({ name: 'openSettings', op: 'device.open' }, () => { Linking.openSettings(); }); }"
+  },
+  {
+    "platform": "react-native",
+    "code": "async function checkLocationPermissions() { const permission = await Permissions.check(Permissions.LOCATION); return permission; }",
+    "description": "Checking location permissions",
+    "sentry_code": "async function checkLocationPermissions() { return await Sentry.startSpan({ name: 'checkLocationPermissions', op: 'device.permissions' }, async () => { const permission = await Permissions.check(Permissions.LOCATION); return permission; }); }"
+  },
+  {
+    "platform": "backend",
+    "code": "def backup_database(db_name): backup_path = backup_service.backup(db_name); return backup_path",
+    "description": "Backing up a database",
+    "sentry_code": "def backup_database(db_name): with sentry_sdk.start_span(op=\"db.backup\", description=\"Backup database\"): sentry_sdk.set_tag(\"db_name\", db_name); backup_path = backup_service.backup(db_name); return backup_path"
+  },
+  {
+    "platform": "backend",
+    "code": "def restore_database(backup_path): restore_service.restore(backup_path);",
+    "description": "Restoring a database from backup",
+    "sentry_code": "def restore_database(backup_path): with sentry_sdk.start_span(op=\"db.restore\", description=\"Restore database\"): sentry_sdk.set_tag(\"backup_path\", backup_path); restore_service.restore(backup_path);"
+  },
+  {
+    "platform": "web",
+    "code": "async function compressImage(file) { return await imageCompressionService.compress(file); }",
+    "description": "Compressing an image file",
+    "sentry_code": "async function compressImage(file) { return await Sentry.startSpan({ name: 'compressImage', op: 'media.process' }, async () => { return await imageCompressionService.compress(file); }); }"
+  },
+  {
+    "platform": "web",
+    "code": "function resizeImage(image, width, height) { // Image resizing logic }",
+    "description": "Resizing an image",
+    "sentry_code": "function resizeImage(image, width, height) { return Sentry.startSpan({ name: 'resizeImage', op: 'media.process' }, () => { // Image resizing logic }); }"
+  }
+]
